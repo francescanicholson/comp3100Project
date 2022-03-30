@@ -1,29 +1,3 @@
-/*import java.net.*;  
-import java.io.*;
-import java.util.concurrent.TimeUnit;
-
-class tcpClient{  
-public static void main(String args[])throws Exception{  
-    Socket s = new Socket("localhost",50000);
-    DataInputStream din=new DataInputStream(s.getInputStream());  
-    DataOutputStream dout=new DataOutputStream(s.getOutputStream());  
-    BufferedReader br = new BufferedReader(new InputStreamReader(s.getInputStream()));
-    
-    String server = "", msg = "";
-    
-    while(!server.equals("BYE")) {
-            server = br.readLine();
-            dout.write(write(("HELO\n").getBytes());
-            dout.flush();
-            msg = br.readLine();
-            System.out.println("Server: " + msg);
-        }
-        dout.close();
-        s.close();
-    }
-}
-*/
-
 import java.net.*;
 import java.io.*;
 import java.io.File;
@@ -32,8 +6,14 @@ import javax.xml.parsers.DocumentBuilder;
 
 
 class tcpClient {
+
+    public static String getElementText(Element element, String tagName) {
+		return element.getElementsByTagName(tagName).item(0).getTextContent();
+	}
+
+
     public static void main (String args[]) {
-// arguments supply message and hostname of destination
+    // arguments supply message and hostname of destination
     Socket s = null;
     try{
         int serverPort = 50000;
@@ -44,30 +24,14 @@ class tcpClient {
         out.write(("HELO\n").getBytes()); // UTF is a string encoding see Sn 4.3
         String data = in.readLine();
         System.out.println("Received: "+ data);
-        out.write(("AUTH fransis\n").getBytes()); // UTF is a string encoding see Sn 4.3
+        out.write(("AUTH francesca\n").getBytes()); // UTF is a string encoding see Sn 4.3
         String auth = in.readLine();
         System.out.println("Received: "+ auth);
-        }
+       
 
-    catch (UnknownHostException e){
+        // DOM READER FOR XML FILE
 
-        System.out.println("Sock:"+e.getMessage());
-    }
-    catch (EOFException e){
-        System.out.println("EOF:"+e.getMessage());
-    }
-    catch (IOException e){
-        System.out.println("IO:"+e.getMessage());
-        } 
-    if(s!=null) try {
-        s.close();
-        }
-        catch (IOException e){
-            System.out.println("close:"+e.getMessage());
-        }
-    }
-
-    String xmlFilePathname = "ds-sample-config01-2.xml";
+        String xmlFilePathname = "ds-sample-config01.xml";
 		File xmlFile = new File(xmlFilePathname);
 
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -90,16 +54,30 @@ class tcpClient {
             System.out.println("Disk: " + getElementText(element, "disk"));
 
 		}
-		
-	
 
-	public static String getElementText(Element element, String tagName) {
-		return element.getElementsByTagName(tagName).item(0).getTextContent();
-	}
-
+        out.write(("REDY\n").getBytes());
+        String readData = in.readLine();
+        System.out.println("Received: "+ readData);
     }
-}
 
+    catch (UnknownHostException e){
+
+        System.out.println("Sock:"+e.getMessage());
+    }
+    catch (EOFException e){
+        System.out.println("EOF:"+e.getMessage());
+    }
+    catch (IOException e){
+        System.out.println("IO:"+e.getMessage());
+        } 
+    if(s!=null) try {
+        s.close();
+        }
+        catch (IOException e){
+            System.out.println("close:"+e.getMessage());
+        }
+    }
 
    
 
+}

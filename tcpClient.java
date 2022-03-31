@@ -135,12 +135,6 @@ class Server{
     }
 }
 
-/*
-class serverSorter{
-    public static void main(String[] args)
-        
-}
-*/
 
 class xmlReader{
  // DOM READER FOR XML FILE
@@ -152,8 +146,6 @@ class xmlReader{
               
 
         }
-
-
     }
    
    

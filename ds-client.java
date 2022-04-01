@@ -10,7 +10,7 @@ import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
 
-class tcpClient {
+class dsClient {
 
     public static void main (String args[]) {
     // arguments supply message and hostname of destination

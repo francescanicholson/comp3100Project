@@ -2,6 +2,8 @@
 //45903824
 
 
+
+
 //Java import packages for network, I/O, ArrayLists, XML parsers(DOM) & exceptions
 import java.net.*;
 import java.io.*;
@@ -21,6 +23,8 @@ class dsClient {
         //used for authentication of username 
         String authName = System.getProperty("user.name");
         Socket s = null;
+        String response = "";
+
         try{
             //server port used for ds-client as specified in marking criteria
             int serverPort = 50000;
@@ -32,36 +36,47 @@ class dsClient {
             //handshaking with HELO to ds-server
             out.write(("HELO\n").getBytes()); 
             //gathering response from ds-server
-            String data = in.readLine();
+            response = in.readLine();
             //printing out response from ds-server
-            System.out.println("Received: "+ data);
+            System.out.println("Received: "+ response);
 
             //authenticating username with ds-server
             out.write(("AUTH " + authName + "\n").getBytes());
             //gathering response from ds-server
-            String auth = in.readLine();
+            response = in.readLine();
             //printing out response from ds-server
-            System.out.println("Received: "+ auth);
+            System.out.println("Received: "+ response);
 
-            //telling ds-server that ds-client is ready for starting job information/scheduling
-            out.write(("REDY\n").getBytes());
-            //gathering response from ds-server
-            String readData = in.readLine();
-            //printing out response from ds-server
-            System.out.println("Received: "+ readData);
+            
+            //starting the loop to go through every server/job and I/O
+            while(!response.equals("NONE")){
 
-            //requesting for ds-server to send all server state information
-            out.write(("GETS All\n").getBytes());
-            //gathering response from ds-server
-            String readGets = in.readLine();
-            //printing out response from ds-server
-            System.out.println("Received: "+ readGets);
+                //telling ds-server that ds-client is ready for starting job information/scheduling
+                out.write(("REDY\n").getBytes());
+                //gathering response from ds-server
+                response = in.readLine();
+                //printing out response from ds-server
+                System.out.println("Received: "+ response);
 
-            //requesting ds-server for more information on the server
-            out.write(("OK\n").getBytes());
+                //requesting for ds-server to send all server state information
+                out.write(("GETS All\n").getBytes());
+                //gathering response from ds-server
+                response = in.readLine();
+                //printing out response from ds-server
+                System.out.println("Received: "+ response);
 
 
-            String readOK = in.readLine();
+
+                //requesting ds-server for more information on the server
+                out.write(("OK\n").getBytes());
+                response = in.readLine();
+
+
+
+            }
+            out.write(("QUIT\n".getBytes()));
+            response = in.readLine();
+            s.close();
         
     }
 //error catching
@@ -172,14 +187,20 @@ class Server{
     public void setDisk(int disk){
         this.disk = disk;
     }
+
+    public int compareTo(Server server){
+        if(this.cores == server.cores){
+            return 0;
+        } 
+        else if(this.cores < server.cores){
+            return 1;    
+        }
+        else{
+            return -1;
+        }
+    }
 }
 
-/*
-class serverSorter{
-    public static void main(String[] args)
-        
-}
-*/
 
 class xmlReader{
  // DOM READER FOR XML FILE
@@ -187,13 +208,6 @@ class xmlReader{
     public static void main(String[] args) throws ParserConfigurationException, SAXException, IOException{
         //initialises the subclass to run
         List<Server> servers = parseConfigXML();
-     /*   for (int temp = 0; temp < servers.getLength(); temp++){
-            //compare based on cores
-              
-
-        }
-*/
-
     }
    
    

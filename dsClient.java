@@ -38,52 +38,68 @@ class dsClient {
             //gathering response from ds-server
             response = in.readLine();
             //printing out response from ds-server
-            System.out.println("Received: "+ response);
+            System.out.println(serverResponse(response));
 
             //authenticating username with ds-server
             out.write(("AUTH " + authName + "\n").getBytes());
             //gathering response from ds-server
             response = in.readLine();
             //printing out response from ds-server
-            System.out.println("Received: "+ response);
+            System.out.println(serverResponse(response));
 
             
             //starting the loop to go through every server/job and I/O
-            while(!response.equals("NONE")){
+            //while(!response.equals("NONE")){
 
-                //telling ds-server that ds-client is ready for starting job information/scheduling
-                out.write(("REDY\n").getBytes());
-                //gathering response from ds-server
-                response = in.readLine();
-                //printing out response from ds-server
-                System.out.println("Received: "+ response);
-
-                //requesting for ds-server to send all server state information
-                out.write(("GETS All\n").getBytes());
-                //gathering response from ds-server
-                response = in.readLine();
-                //printing out response from ds-server
-                System.out.println("Received: "+ response);
-
-
-
-                //requesting ds-server for more information on the server
-                out.write(("OK\n").getBytes());
-                response = in.readLine();
-
-
-
-            }
-            out.write(("QUIT\n".getBytes()));
+            //telling ds-server that ds-client is ready for starting job information/scheduling
+            out.write(("REDY\n").getBytes());
+            //gathering response from ds-server
             response = in.readLine();
+            //printing out response from ds-server
+            System.out.println(serverResponse(response));
+
+            //used for spliting server response
+            String[] jobDetails = response.split(" ");
+            int detailsLength = jobDetails.length;
+
+            //requesting server info from ds-server 
+            out.write(("GETS Capable "+ jobDetails[detailsLength - 3] + " " + jobDetails[detailsLength - 2] + " " + jobDetails[detailsLength - 1] +"\n").getBytes());
+                
+            //gathering response from ds-server
+            response = in.readLine();
+                   
+            //splits the server data into chunks of info (as seperated by " ")
+            String[] serverData = response.split(" ");
+
+            //for each server, send OK, and read response    
+            for (int i = 0; i < Integer.valueOf(serverData[1]); i++) {
+                out.write("OK\n".getBytes());
+                response = in.readLine();
+                System.out.println(serverResponse(response));
+                
+            }  
+
+            //printing out response from ds-server
+            System.out.println(serverResponse(response)); 
+
+            //used to proceed to end
+            out.write("OK\n".getBytes());
+            //gathering response from ds-server
+            response = in.readLine();
+            //quits simulation
+            out.write(("QUIT\n").getBytes());
+            out.flush();
+            out.close();
             s.close();
+            
         
-    }
+        }
 //error catching
     catch (UnknownHostException e){
         //used to catch unknown socket host exceptions
         System.out.println("Sock:"+e.getMessage());
     }
+
     catch (EOFException e){
         //used to catch end of file exceptions
         System.out.println("EOF:"+e.getMessage());
@@ -101,150 +117,117 @@ class dsClient {
             System.out.println("close:"+e.getMessage());
         }
     }
+
+    //used to see server response
+    public static String serverResponse(String serverResponse) {
+        return "RCVD: " + serverResponse;
+    }
    
 }
-//class that helps to populate the Server ArrayList as seen in 'parseConfigXML()' below
+
+//class that helps to populate the Server ArrayList
 class Server{
-    //defining the attributes as seen in the XML config file
-    String type;
-    int limit;
-    int bootupTime;
-    double hourlyRate;
-    int cores;
-    int memory;
-    int disk;
+    public String type;
+    public int id;
+    public int cores;
+    public int memory;
+    public int disk;
 
-    //returns all of the items in one 'line'
-    public String toString(){
-        return "Server [type = " + type + ", limit = " + limit + ", bootup time = " + bootupTime + ", hourly rate = " + hourlyRate + ", cores = " + cores + ", memory = " +memory + ", disk = " + disk + "]";
-    }    
+   //returns all of the items in one 'line'
+   public String toString(){
+       return "Server [type = " + type + "id = " + id + ", cores = " + cores + ", memory = " + memory + ", disk = " + disk + "]";
+   }   
+ 
+   //gets the type of server and returns it
+   public String getType(){
+       return type;
+   }
+ 
+   //sets the current type of server as the returned type from getType()
+   public void setType(String type){
+       this.type = type;
+   }
+ 
+ 
+   //gets the core info of server and returns it
+   public int getCores(){
+       return cores;
+   }
+ 
+   //sets the current core info of server as the returned core info from getCores()
+   public void setCores(int cores){
+       this.cores = cores;
+   }
+ 
+   //gets the memory info of server and returns it
+   public int getMemory(){
+       return memory;
+   }
+ 
+   //sets the current memory of server as the returned memory info from getMemory()
+   public void setMemory(int memory){
+       this.memory = memory;
+   }
+ 
+   //gets the disk info of server and returns it
+   public int getDisk(){
+       return disk;
+   }
+ 
+   //sets the current disk info of server as the returned disk info from getDisk()
+   public void setDisk(int disk){
+       this.disk = disk;
+   }
 
-    //gets the type of server and returns it
-    public String getType(){
-        return type;
-    }
-
-    //sets the current type of server as the returned type from getType()
-    public void setType(String type){
-        this.type = type;
-    }
-
-    //gets the limit of server and returns it
-    public int getLimit(){
-        return limit;
-    }
-
-    //sets the current limit of server as the returned limit from getLimit()
-    public void setLimit(int limit){
-        this.limit = limit;
-    }
-
-    //gets the bootup time of server and returns it
-    public int getBootupTime(){
-        return bootupTime;
-    }
-    //sets the current bootup time of server as the returned bootup time from getBootupTime()
-    public void setBootupTime(int bootupTime){
-        this.bootupTime = bootupTime;
-    }
-
-    //gets the hourly rate of server and returns it
-    public Double getHourly(){
-        return hourlyRate;
-    }
-
-    //sets the current hourly rate of server as the returned hourly rate from getHourly()
-    public void setHourly(Double hourlyRate){
-        this.hourlyRate = hourlyRate;
-    }
-
-    //gets the core info of server and returns it
-    public int getCores(){
-        return cores;
-    }
-
-    //sets the current core info of server as the returned core info from getCores()
-    public void setCores(int cores){
-        this.cores = cores;
-    }
-
-    //gets the memory info of server and returns it
-    public int getMemory(){
-        return memory;
-    }
-
-    //sets the current memory of server as the returned memory info from getMemory()
-    public void setMemory(int memory){
-        this.memory = memory;
-    }
-
-    //gets the disk info of server and returns it
-    public int getDisk(){
-        return disk;
-    }
-
-    //sets the current disk info of server as the returned disk info from getDisk()
-    public void setDisk(int disk){
-        this.disk = disk;
-    }
-
-    public int compareTo(Server server){
-        if(this.cores == server.cores){
-            return 0;
-        } 
-        else if(this.cores < server.cores){
-            return 1;    
-        }
-        else{
-            return -1;
-        }
-    }
 }
-
-
+ 
 class xmlReader{
- // DOM READER FOR XML FILE
-
-    public static void main(String[] args) throws ParserConfigurationException, SAXException, IOException{
-        //initialises the subclass to run
-        List<Server> servers = parseConfigXML();
-    }
-   
-   
-    private static List<Server> parseConfigXML() throws ParserConfigurationException, SAXException, IOException{
-        //making a new ArrayList to store the XML information
-        List<Server> servers = new ArrayList<Server>();
-        Server server = null;
-        //gets document builder - api that allows parsing to happen
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        //builds document
-        DocumentBuilder builder = factory.newDocumentBuilder();
-        //parses the XML file
-        Document document = builder.parse(new File("/home/francesca/ds-sim/src/pre-compiled/"));
-        //normalises the file (reducing redundancies)
-        document.getDocumentElement().normalize();
-        //makes new nodelist for storing the servers & their attributes
-        NodeList serverList = document.getElementsByTagName("server");
-        for (int temp = 0; temp < serverList.getLength(); temp++){
-            Node node = serverList.item(temp);
-            if (node.getNodeType() == Node.ELEMENT_NODE){
-                Element serverElement = (Element) node;
-                //creates new Server object
-                server = new Server();
-                //uses the methods from Server class to gather attribute info/values
-                server.setType(serverElement.getElementsByTagName("type").item(0).getTextContent());
-                server.setLimit(Integer.parseInt(serverElement.getAttribute("limit")));
-                server.setBootupTime(Integer.parseInt(serverElement.getAttribute("bootupTime")));
-                server.setHourly(Double.parseDouble(serverElement.getAttribute("hourlyRate")));
-                server.setCores(Integer.parseInt(serverElement.getAttribute("cores")));
-                server.setMemory(Integer.parseInt(serverElement.getAttribute("memory")));
-                server.setDisk(Integer.parseInt(serverElement.getAttribute("disk")));
-
-                //adds current server to list
-                servers.add(server);
-            }
-        }
-        //returns server info
-        return servers;
-    }
+// DOM READER FOR XML FILE
+ 
+   public static void main(String[] args) throws ParserConfigurationException, SAXException, IOException{
+       //initialises the subclass to run
+       List<Server> servers = parseConfigXML();
+   }
+ 
+ 
+   public static List<Server> parseConfigXML() throws ParserConfigurationException, SAXException, IOException{
+       //making a new ArrayList to store the XML information
+       List<Server> servers = new ArrayList<Server>();
+       Server server = null;
+       //gets document builder - api that allows parsing to happen
+       DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+       //builds document
+       DocumentBuilder builder = factory.newDocumentBuilder();
+       //parses the XML file
+       Document document = builder.parse(new File("/home/francesca/ds-sim/src/pre-compiled/../"));
+       //normalises the file (reducing redundancies)
+       document.getDocumentElement().normalize();
+ 
+       int serverSize = 0;
+ 
+       //makes new nodelist for storing the servers & their attributes
+       NodeList serverList = document.getElementsByTagName("server");
+       for (int temp = 0; temp < serverList.getLength(); temp++){
+           Node node = serverList.item(temp);
+           if (node.getNodeType() == Node.ELEMENT_NODE){
+               Element serverElement = (Element) node;
+               //creates new Server object
+               server = new Server();
+               //uses the methods from Server class to gather attribute info/values
+               server.setType(serverElement.getElementsByTagName("type").item(0).getTextContent());
+               server.setLimit(Integer.parseInt(serverElement.getAttribute("limit")));
+               server.setBootupTime(Integer.parseInt(serverElement.getAttribute("bootupTime")));
+               server.setHourly(Double.parseDouble(serverElement.getAttribute("hourlyRate")));
+               server.setCores(Integer.parseInt(serverElement.getAttribute("cores")));
+               server.setMemory(Integer.parseInt(serverElement.getAttribute("memory")));
+               server.setDisk(Integer.parseInt(serverElement.getAttribute("disk")));
+ 
+               //adds current server to list
+               servers.add(server);
+               serverSize++;
+           }
+       }
+       //returns server info
+       return servers;
+   }
 }

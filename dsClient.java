@@ -225,7 +225,7 @@ class xmlReader{
                server = new Server();
                //uses the methods from Server class to gather attribute info/values
                server.setType(serverElement.getElementsByTagName("type").item(0).getTextContent());
-  	           server.setId(Integer.parseInt(serverElement.getAttribute("id")));
+  	       server.setId(Integer.parseInt(serverElement.getAttribute("id")));
                server.setCores(Integer.parseInt(serverElement.getAttribute("cores")));
                server.setMemory(Integer.parseInt(serverElement.getAttribute("memory")));
                server.setDisk(Integer.parseInt(serverElement.getAttribute("disk")));

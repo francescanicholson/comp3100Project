@@ -195,7 +195,7 @@ class xmlReader{
 // DOM READER FOR XML FILE
  
    public static void main(String[] args) throws ParserConfigurationException, SAXException, IOException{
-       //initialises the subclass to run
+       //initialises the subclass (constructor) to run
        List<Server> servers = parseConfigXML();
    }
  

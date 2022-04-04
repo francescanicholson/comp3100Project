@@ -149,6 +149,16 @@ class Server{
    }
  
  
+   //gets the id of server and returns it
+   public int getId(){
+       return id;
+   }
+ 
+   //sets the current id of server as the returned id from getId()
+   public void setId(int id){
+       this.id = id;
+   }
+ 
    //gets the core info of server and returns it
    public int getCores(){
        return cores;
@@ -215,9 +225,7 @@ class xmlReader{
                server = new Server();
                //uses the methods from Server class to gather attribute info/values
                server.setType(serverElement.getElementsByTagName("type").item(0).getTextContent());
-               server.setLimit(Integer.parseInt(serverElement.getAttribute("limit")));
-               server.setBootupTime(Integer.parseInt(serverElement.getAttribute("bootupTime")));
-               server.setHourly(Double.parseDouble(serverElement.getAttribute("hourlyRate")));
+  	           server.setId(Integer.parseInt(serverElement.getAttribute("id")));
                server.setCores(Integer.parseInt(serverElement.getAttribute("cores")));
                server.setMemory(Integer.parseInt(serverElement.getAttribute("memory")));
                server.setDisk(Integer.parseInt(serverElement.getAttribute("disk")));

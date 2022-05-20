@@ -49,15 +49,19 @@ class dsClient {
 
             
             //starting the loop to go through every server/job and I/O
-            while(!response.equals("NONE")){
+
+            while(!response.equals("NONE\n")){
+               
                     //telling ds-server that ds-client is ready for starting job information/scheduling
                     out.write(("REDY\n").getBytes());
                     //gathering response from ds-server
                     response = in.readLine();
-                    //printing out response from ds-server
-                    System.out.println(serverResponse(response));
+                    
+                    if(response.indexOf("JOBN") != 1){  
+                        
+                        //printing out response from ds-server
+                        System.out.println(serverResponse(response));
 
-                    if(response.equals("JOBN")){   
                         String[] jobDetails = response.split(" ");
                         int detailsLength = jobDetails.length;
 
@@ -67,22 +71,20 @@ class dsClient {
                             
                         //gathering response from ds-server
                         response = in.readLine();
-
+         
                         //splits the server data into chunks of info (as seperated by " ")
                         String[] serverData = response.split(" ");
 
-                    
-                    // int serverDetailsLength = serverData.length;
                         List<String> myServers = new ArrayList <String>(); 
                         out.write("OK\n".getBytes());
-                        response = in.readLine();
+                        //response = in.readLine();
                         
+                       
                         for (int i = 0; i < Integer.valueOf(serverData[1]); i++) {
                             response = in.readLine();
                             //add to my server
                             myServers.add(response);
                             System.out.println(serverResponse(response));
-                            //out.write("OK\n".getBytes());
                         }
 
                         out.write("OK\n".getBytes()); 
@@ -90,12 +92,15 @@ class dsClient {
                         String[] trgSplit = trgServer.split(" ");
                         out.write(("SCHD "+ jobId + " " + trgSplit[0] + " " + trgSplit[1]+"\n").getBytes());
                         //schd jobid servertype serverid
-
+                        
                         //printing out response from ds-server
                         System.out.println(serverResponse(response)); 
-                }
-                
-                //used to proceed to end
+
+                        }
+
+            }
+            
+            //used to proceed to end
                 out.write("OK\n".getBytes());
                 //gathering response from ds-server
                 response = in.readLine();
@@ -104,9 +109,9 @@ class dsClient {
                 out.flush();
                 out.close();
                 s.close();
-            }
+          
         }
-        
+           
 //error catching
     catch (UnknownHostException e){
         //used to catch unknown socket host exceptions
@@ -135,5 +140,5 @@ class dsClient {
     public static String serverResponse(String serverResponse) {
         return "RCVD: " + serverResponse;
     }
+   
 }
-

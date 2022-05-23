@@ -24,7 +24,7 @@ class dsClient {
         String authName = System.getProperty("user.name");
         Socket s = null;
         String response = "";
-
+      
         try{
             //server port used for ds-client as specified in marking criteria
             int serverPort = 50000;
@@ -50,43 +50,41 @@ class dsClient {
             
             //starting the loop to go through every server/job and I/O
 
-            while(!response.equals("NONE\n")){
+            if(!response.equals("NONE\n")){
                
                     //telling ds-server that ds-client is ready for starting job information/scheduling
                     out.write(("REDY\n").getBytes());
                     //gathering response from ds-server
                     response = in.readLine();
-                    
-                    if(response.indexOf("JOBN") != 1){  
-                        
-                        //printing out response from ds-server
-                        System.out.println(serverResponse(response));
+                                          
+                     //printing out response from ds-server
+                     System.out.println(serverResponse(response));
 
-                        String[] jobDetails = response.split(" ");
-                        int detailsLength = jobDetails.length;
+                     String[] jobDetails = response.split(" ");
+                     int detailsLength = jobDetails.length;
+                      
+                     String jobId = jobDetails[2];
 
-                        String jobId = jobDetails[2];
-                        //requesting server info from ds-server 
-                        out.write(("GETS Capable "+ jobDetails[detailsLength - 3] + " " + jobDetails[detailsLength - 2] + " " + jobDetails[detailsLength - 1] +"\n").getBytes());
+                      //requesting server info from ds-server 
+                      out.write(("GETS Capable "+ jobDetails[detailsLength - 3] + " " + jobDetails[detailsLength - 2] + " " + jobDetails[detailsLength - 1] +"\n").getBytes());
                             
-                        //gathering response from ds-server
-                        response = in.readLine();
+                      //gathering response from ds-server
+                      response = in.readLine();
          
-                        //splits the server data into chunks of info (as seperated by " ")
-                        String[] serverData = response.split(" ");
+                      //splits the server data into chunks of info (as seperated by " ")
+                      String[] serverData = response.split(" ");
 
-                        List<String> myServers = new ArrayList <String>(); 
-                        out.write("OK\n".getBytes());
-                        //response = in.readLine();
-                        
-                       
-                        for (int i = 0; i < Integer.valueOf(serverData[1]); i++) {
+                      List<String> myServers = new ArrayList <String>(); 
+                      out.write("OK\n".getBytes());
+                                      
+                      for (int i = 0; i < Integer.valueOf(serverData[1]); i++) {
                             response = in.readLine();
                             //add to my server
                             myServers.add(response);
                             System.out.println(serverResponse(response));
                         }
 
+                      
                         out.write("OK\n".getBytes()); 
                         String trgServer = myServers.get(0);
                         String[] trgSplit = trgServer.split(" ");
@@ -95,20 +93,19 @@ class dsClient {
                         
                         //printing out response from ds-server
                         System.out.println(serverResponse(response)); 
-
-                        }
-
+            
+                   
             }
             
             //used to proceed to end
-                out.write("OK\n".getBytes());
-                //gathering response from ds-server
-                response = in.readLine();
-                //quits simulation
-                out.write(("QUIT\n").getBytes());
-                out.flush();
-                out.close();
-                s.close();
+            out.write("OK\n".getBytes());
+            //gathering response from ds-server
+            response = in.readLine();
+            //quits simulation
+            out.write(("QUIT\n").getBytes());
+            out.flush();
+            out.close();
+            s.close();
           
         }
            

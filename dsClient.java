@@ -46,8 +46,7 @@ class dsClient {
       System.out.println(serverResponse(response));
 
       //starting the loop to go through every server/job and I/O
-
-      if (!response.equals("NONE")) {
+      while (!response.equals("NONE")) {
         //telling ds-server that ds-client is ready for starting job information/scheduling
         out.write(("REDY\n").getBytes());
         //gathering response from ds-server
@@ -55,56 +54,63 @@ class dsClient {
 
         //printing out response from ds-server
         System.out.println(serverResponse(response));
+        if (response.startsWith("JOBN")) {
+          String[] jobDetails = response.split(" ");
+          int detailsLength = jobDetails.length;
 
-        String[] jobDetails = response.split(" ");
-        int detailsLength = jobDetails.length;
+          String jobId = jobDetails[2];
 
-        String jobId = jobDetails[2];
+          //requesting server info from ds-server
+          out.write(
+            (
+              "GETS Capable " +
+              jobDetails[detailsLength - 3] +
+              " " +
+              jobDetails[detailsLength - 2] +
+              " " +
+              jobDetails[detailsLength - 1] +
+              "\n"
+            ).getBytes()
+          );
 
-        //requesting server info from ds-server
-        out.write(
-          (
-            "GETS Capable " +
-            jobDetails[detailsLength - 3] +
-            " " +
-            jobDetails[detailsLength - 2] +
-            " " +
-            jobDetails[detailsLength - 1] +
-            "\n"
-          ).getBytes()
-        );
-
-        //gathering response from ds-server
-        response = in.readLine();
-
-        //splits the server data into chunks of info (as seperated by " ")
-        String[] serverData = response.split(" ");
-
-        List<String> myServers = new ArrayList<String>();
-        out.write("OK\n".getBytes());
-        //response = in.readLine();
-
-        for (int i = 0; i < Integer.valueOf(serverData[1]); i++) {
+          //gathering response from ds-server
           response = in.readLine();
-          //add to my server
-          myServers.add(response);
+
+          //splits the server data into chunks of info (as seperated by " ")
+          String[] serverData = response.split(" ");
+
+          List<String> myServers = new ArrayList<String>();
+          out.write("OK\n".getBytes());
+          //response = in.readLine();
+
+          for (int i = 0; i < Integer.parseInt(serverData[1]); i++) {
+            response = in.readLine();
+            //add to my server
+            myServers.add(response);
+            System.out.println(serverResponse(response));
+          }
+
+          out.write("OK\n".getBytes());
+
+          response = in.readLine();
+
+          //printing out response from ds-server
+          System.out.println(serverResponse(response));
+
+          String trgServer = myServers.get(0);
+          String[] trgSplit = trgServer.split(" ");
+          //schd jobid servertype serverid
+          out.write(
+            (
+              "SCHD " + jobId + " " + trgSplit[0] + " " + trgSplit[1] + "\n"
+            ).getBytes()
+          );
+
+          response = in.readLine();
+
+          //printing out response from ds-server
           System.out.println(serverResponse(response));
         }
-
-        out.write("OK\n".getBytes());
-        String trgServer = myServers.get(0);
-        String[] trgSplit = trgServer.split(" ");
-        //schd jobid servertype serverid
-        out.write(
-          ("SCHD " + jobId + " " + trgSplit[0] + " " + trgSplit[1] + "\n").getBytes()
-        );
-        
-        
-
-        response = in.readLine();
-
-        //printing out response from ds-server
-        System.out.println(serverResponse(response));
       }
 
       //used to proceed to end
@@ -116,10 +122,7 @@ class dsClient {
       out.flush();
       out.close();
       s.close();
-    } 
-    
-    //error catching
-    catch (UnknownHostException e) {
+    } catch (UnknownHostException e) { //error catching
       //used to catch unknown socket host exceptions
       System.out.println("Sock:" + e.getMessage());
     } catch (EOFException e) {

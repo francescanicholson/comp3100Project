@@ -1,14 +1,13 @@
 //Francesca Nicholson
 //45903824
 
-//Java import packages for network, I/O, ArrayLists, XML parsers(DOM) & exceptions
+//Java import packages for network, I/O, ArrayLists, & exceptions
 import java.io.*;
 import java.io.File;
 import java.net.*;
 import java.util.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Predicate;
 import org.xml.sax.SAXException;
 
 class dsClientSJF {
@@ -74,90 +73,121 @@ class dsClientSJF {
 
           //gathering response from ds-server
           response = in.readLine();
-
           //splits the server data into chunks of info (as seperated by " ")
           String[] serverData = response.split(" ");
-
+          //to store the list of servers from the GETS Capable
           List<String> myServers = new ArrayList<String>();
-
+          //to proceed to next step
           out.write("OK\n".getBytes());
-          //response = in.readLine();
 
+          //to add every server that is sent after the GETS command
           for (int i = 0; i < Integer.parseInt(serverData[1]); i++) {
+            //gathering response from ds-server
             response = in.readLine();
-            //add to my server
+            //add server to server list
             myServers.add(response);
+            //print out server
             System.out.println(serverResponse(response));
           }
 
+          //to proceed to next step
           out.write("OK\n".getBytes());
+          //gathering response from ds-server
           response = in.readLine();
-
           //printing out response from ds-server
           System.out.println(serverResponse(response));
-
+          //get the first server provided by the GETS command
           String trgServer = myServers.get(0);
+          //split up the server info so its readable and easily accessable
           String[] trgSplit = trgServer.split(" ");
 
+          //after the first job has been scheduled
           if (count > 0) {
-            //Collections.shuffle(myServers);
+            //get the first server provided by the GETS command
             trgServer = myServers.get(0);
+            //split up the server info so its readable and easily accessable
             trgSplit = trgServer.split(" ");
+            //stores the server's waiting job info
             int waitJob = Integer.parseInt(trgSplit[7]);
+            //stores the server's running job info
             int runJob = Integer.parseInt(trgSplit[8]);
+            //stores the server's status (inactive, idle, active) info
             String status = trgSplit[2];
+            //used to exit out of loops easily
+            boolean stop = true;
 
-            boolean test = true;
-            System.out.println("TARGET: " + trgServer);
+            //if the server chosen (the first from GETS Capable) has a running or waiting job
             if (waitJob > 0 || runJob > 0) {
-              for (int i = 0; i < myServers.size() && test; i++) {
+              //traverse through the list of servers
+              for (int i = 0; i < myServers.size() && stop; i++) {
+                //get the current server in the loop
                 trgServer = myServers.get(i);
+                //split up the server info so its readable and easily accessable
                 trgSplit = trgServer.split(" ");
+                //stores the server's waiting job info
                 waitJob = Integer.parseInt(trgSplit[7]);
+                //stores the server's running job info
                 runJob = Integer.parseInt(trgSplit[8]);
+                //stores the server's status (inactive, idle, active) info
                 status = trgSplit[2];
 
+                //if the server chosen has no waiting or running jobs / is idle
                 if (waitJob == 0 && runJob == 0 || status.startsWith("idle")) {
+                  //choose the server as the one to schedule
                   trgServer = myServers.get(i);
-                  test = false;
+                  //get out of the loop
+                  stop = false;
                 }
 
+                //if the chosen server's status is active
                 if (status.startsWith("active")) {
+                  //if the server size is less or equal to 50
                   if (myServers.size() <= 50) {
+                    //if the server has more than 2 waiting or running jobs
                     if (waitJob > 2 && runJob > 2) {
+                      //remove the server from the server list
                       myServers.remove(trgServer);
                     }
+                    //if the server has no waiting jobs
                     if (waitJob == 0) {
+                      //choose the current server
                       trgServer = myServers.get(i);
-                      test = false;
+                      //quit the loop
+                      stop = false;
                     }
                   }
+                  //if the server size is more than 50
                   if (myServers.size() > 50) {
+                    //if the server has waiting jobs or more than 2 running jobs
                     if (waitJob > 0 && runJob > 2) {
+                      //remove the server from the server list
                       myServers.remove(trgServer);
                     }
-
+                    //if the server has no waiting jobs
                     if (waitJob == 0) {
+                      //choose the current server
                       trgServer = myServers.get(i);
-                      test = false;
+                      //quit the loop
+                      stop = false;
                     }
                   }
                 }
               }
             }
-
+            //schedule the job to the server as chosen through the previous methods
             out.write(
               (
                 "SCHD " + jobId + " " + trgSplit[0] + " " + trgSplit[1] + "\n"
               ).getBytes()
             );
-
+            //reading response from ds-server
             response = in.readLine();
-
             //printing out response from ds-server
             System.out.println(serverResponse(response));
           }
 
+          //on the first job scheduling
+          //schedule the first server from GETS Capable
           if (count == 0) {
             //schd jobid servertype serverid
             out.write(
@@ -165,8 +195,8 @@ class dsClientSJF {
                 "SCHD " + jobId + " " + trgSplit[0] + " " + trgSplit[1] + "\n"
               ).getBytes()
             );
+            //reading response from ds-server
             response = in.readLine();
-
             //printing out response from ds-server
             System.out.println(serverResponse(response));
             count++;

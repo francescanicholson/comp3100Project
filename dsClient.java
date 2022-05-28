@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.xml.sax.SAXException;
 
-class dsClientSJF {
+class dsClient {
 
   public static void main(String args[]) {
     //used for authentication of username
@@ -52,10 +52,13 @@ class dsClientSJF {
 
         //printing out response from ds-server
         System.out.println(serverResponse(response));
+        //if response from ds-server is JOBN
         if (response.startsWith("JOBN")) {
+          //split the response of the JOB so that it is readable and accessable
           String[] jobDetails = response.split(" ");
+          //stores the length of the job string 
           int detailsLength = jobDetails.length;
-
+          //stores the ID as provided in the job string
           String jobId = jobDetails[2];
 
           //requesting server info from ds-server
